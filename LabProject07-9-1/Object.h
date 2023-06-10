@@ -312,6 +312,7 @@ class CM26Object : public CTankObject
 {
 public:
 	CM26Object();
+	CM26Object(float x, float y, float z);
 	virtual ~CM26Object();
 
 	virtual void OnInitialize();

@@ -823,8 +823,12 @@ void CTankObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CM26Object::CM26Object()
+CM26Object::CM26Object(float x, float y, float z)
 {
+	XMMATRIX mtxScale = XMMatrixScaling(x, y, z);
+	m_xmf4x4Transform = Matrix4x4::Multiply(mtxScale, m_xmf4x4Transform);
+
+	// UpdateTransform(NULL);
 }
 
 CM26Object::~CM26Object()
