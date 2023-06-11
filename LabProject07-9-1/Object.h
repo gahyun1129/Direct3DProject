@@ -303,9 +303,13 @@ public:
 	virtual ~CTankObject();
 
 protected:
+	CGameObject* m_pBodyFrame = NULL;
 	CGameObject* m_pTurretFrame = NULL;
 	CGameObject* m_pCannonFrame = NULL;
 	CGameObject* m_pGunFrame = NULL;
+	CGameObject* m_pCaterpillar_RFrame = NULL;
+	CGameObject* m_pCaterpillar_LFrame = NULL;
+	CGameObject* m_pPoleFrame = NULL;
 
 public:
 	virtual void OnInitialize();

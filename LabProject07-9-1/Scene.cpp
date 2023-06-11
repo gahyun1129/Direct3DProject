@@ -94,7 +94,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pGunshipObject = new CGunshipObject();
 	pGunshipObject->SetChild(pGunshipModel, true);
 	pGunshipObject->OnInitialize();
-	pGunshipObject->SetPosition(0.0f, 0.0f, 220.0f);
+	pGunshipObject->SetPosition(50.0f, 0.0f, 220.0f);
 	pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
 	pGunshipObject->Rotate(0.0f, 180.0f, 0.0f);
 	m_ppGameObjects[0] = pGunshipObject;
@@ -126,11 +126,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppGameObjects[0] = pHummerObject;
 
 	//CGameObject* pAbramsModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/M26.bin");
-	//CM26Object* pTankObject = NULL;
-	//
+	//CM26Object* pTankObject = NULL;	
 	//pTankObject = new CM26Object();
 	//pTankObject->SetChild(pAbramsModel, true);
 	//pTankObject->OnInitialize();
+	//pTankObject->Rotate(0.0f, 0.0f, 0.0f);
+	//pTankObject->SetPosition(0.0f, 0.0f, 150.0f);
 	//m_ppGameObjects[0] = pTankObject;
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -233,6 +234,8 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
+		case 'W':
+			m_ppGameObjects[0]->Rotate(0.0f, 5.0f, 0.0f); break;
 		default:
 			break;
 		}

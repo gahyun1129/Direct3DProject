@@ -317,43 +317,21 @@ void CGameObject::catchPlayer(CPlayer* player, float fDistance) {
 	XMFLOAT3 xmf3PlayerPosition = player->GetPosition();
 
 	XMFLOAT3 xmf3Look = Vector3::Subtract(xmf3PlayerPosition, xmf3Position);
+	xmf3Look = (Vector3::Normalize(xmf3Look));
 
-	m_xmf4x4World._31 = xmf3Look.x;
-	m_xmf4x4World._32 = xmf3Look.y;
-	m_xmf4x4World._33 = xmf3Look.z;
 
-	xmf3Look = (Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
-	//float dot = Vector3::DotProduct(Vector3::Normalize(xmf3Position), xmf3Look);
-	//m_fYaw = XMScalarACos(dot);
-	//if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-	//if (m_fYaw < 0.0f) m_fYaw += 360.0f;
-	//XMFLOAT3 m_xmf3Right;
-	//XMFLOAT3 m_xmf3Up;
-	//XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&GetUp()), XMConvertToRadians(m_fYaw));
-	//xmf3Look = Vector3::TransformNormal(xmf3Look, xmmtxRotate);
-	//m_xmf3Right = Vector3::TransformNormal(GetRight(), xmmtxRotate);
-	//xmf3Look = Vector3::Normalize(xmf3Look);
-	//m_xmf3Right = Vector3::CrossProduct(GetUp(), xmf3Look, true);
-	//m_xmf3Up = Vector3::CrossProduct(xmf3Look, m_xmf3Right, true);
-	//m_xmf4x4World._11 = m_xmf3Right.x;
-	//m_xmf4x4World._12 = m_xmf3Right.y;
-	//m_xmf4x4World._13 = m_xmf3Right.z;
-	//m_xmf4x4World._21 = m_xmf3Up.x;
-	//m_xmf4x4World._22 = m_xmf3Up.y;
-	//m_xmf4x4World._23 = m_xmf3Up.z;
-	//m_xmf4x4World._31 = xmf3Look.x;
-	//m_xmf4x4World._32 = xmf3Look.y;
-	//m_xmf4x4World._33 = xmf3Look.z;
-	////if (dot >= 0.0f) {
-	////	float AcosAngle = XMScalarACos(dot);
-	////	Rotate(&m_xmf3RotationAxis, AcosAngle);
-	////}
-
+	float curm_fYaw = Vector3::DotProduct(xmf3Look, xmf3Look);
+	
+	m_fYaw = XMScalarACos(curm_fYaw);
+	if (xmf3Position.x < xmf3PlayerPosition.x) {
+		Rotate(0.0f, 360.0f - m_fYaw * 50, 0.0f);
+	}
+	else {
+		Rotate(0.0f, m_fYaw * 50, 0.0f);
+	}
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);
 	CGameObject::SetPosition(xmf3Position);
-
-	// UpdateTransform(NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -842,13 +820,13 @@ void CTankObject::OnInitialize()
 
 void CTankObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
-	//if (m_pTurretFrame)
-	//{
-	//	XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(30.0f) * fTimeElapsed);
-	//	m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
-	//}
+	if (m_pBodyFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(30.0f) * fTimeElapsed);
+		m_pBodyFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pBodyFrame->m_xmf4x4Transform);
+	}
 
-	//CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -857,8 +835,6 @@ void CTankObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 CM26Object::CM26Object()
 {
 	SetScale(18.0f, 18.0f, 18.0f);
-	SetPosition(0.0f, 0.0f, 100.0f);
-	Rotate(0.0f, 0.0f, 0.0f);
 }
 
 CM26Object::~CM26Object()
@@ -867,7 +843,15 @@ CM26Object::~CM26Object()
 
 void CM26Object::OnInitialize()
 {
-	m_pTurretFrame = FindFrame("BODY");
+	m_pBodyFrame = FindFrame("BODY");
+
+	m_pTurretFrame = FindFrame("TURRET");
+
+	m_pCaterpillar_RFrame = FindFrame("caterpillar_R");
+	m_pCaterpillar_LFrame = FindFrame("caterpillar_L");
+
+
 	m_pCannonFrame = FindFrame("cannon");	
 	m_pGunFrame = FindFrame("gun");
+	m_pPoleFrame = FindFrame("pole");
 }
