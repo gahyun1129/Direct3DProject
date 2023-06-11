@@ -89,15 +89,15 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
 	//pApacheObject->Rotate(0.0f, -90.0f, 0.0f);
 	//m_ppGameObjects[1] = pApacheObject;
-	//CGameObject *pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
-	//CGunshipObject* pGunshipObject = NULL;
-	//pGunshipObject = new CGunshipObject();
-	//pGunshipObject->SetChild(pGunshipModel, true);
-	//pGunshipObject->OnInitialize();
-	//pGunshipObject->SetPosition(135.0f, 40.0f, 220.0f);
-	//pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
-	//pGunshipObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[2] = pGunshipObject;
+	CGameObject *pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
+	CGunshipObject* pGunshipObject = NULL;
+	pGunshipObject = new CGunshipObject();
+	pGunshipObject->SetChild(pGunshipModel, true);
+	pGunshipObject->OnInitialize();
+	pGunshipObject->SetPosition(0.0f, 0.0f, 220.0f);
+	pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
+	pGunshipObject->Rotate(0.0f, 180.0f, 0.0f);
+	m_ppGameObjects[0] = pGunshipObject;
 	//CGameObject *pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
 	//CSuperCobraObject* pSuperCobraObject = NULL;
 	//pSuperCobraObject = new CSuperCobraObject();
@@ -115,23 +115,23 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//pMi24Object->SetScale(4.5f, 4.5f, 4.5f);
 	//pMi24Object->Rotate(0.0f, -90.0f, 0.0f);
 	//m_ppGameObjects[4] = pMi24Object;
+	// 
 	//CGameObject* pHummerModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Hummer.bin");
 	//CHummerObject* pHummerObject = new CHummerObject();
 	//pHummerObject->SetChild(pHummerModel);
 	//pHummerObject->OnInitialize();
-	//pHummerObject->SetPosition(260.0f, 0.0f, 150.0f);
+	//pHummerObject->SetPosition(0.0f, 0.0f, 150.0f);
 	//pHummerObject->SetScale(18.0f, 18.0f, 18.0f);
 	//pHummerObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[5] = pHummerObject;
+	//m_ppGameObjects[0] = pHummerObject;
 
-	CGameObject* pAbramsModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/M26.bin");
-	CM26Object* pTankObject = new CM26Object(10.0f, 10.0f, 10.0f);
-
-	pTankObject->SetChild(pAbramsModel);
-	pTankObject->OnInitialize();
-	pTankObject->SetPosition(0.0f, 0.0f, 100.0f);
-	pTankObject->Rotate(0.0f, 0.0f, 0.0f);
-	m_ppGameObjects[0] = pTankObject;
+	//CGameObject* pAbramsModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/M26.bin");
+	//CM26Object* pTankObject = NULL;
+	//
+	//pTankObject = new CM26Object();
+	//pTankObject->SetChild(pAbramsModel, true);
+	//pTankObject->OnInitialize();
+	//m_ppGameObjects[0] = pTankObject;
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -233,12 +233,6 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_ppGameObjects[0]->MoveForward(+1.0f); break;
-		case 'S': m_ppGameObjects[0]->MoveForward(-1.0f); break;
-		case 'A': m_ppGameObjects[0]->MoveStrafe(-1.0f); break;
-		case 'D': m_ppGameObjects[0]->MoveStrafe(+1.0f); break;
-		case 'Q': m_ppGameObjects[0]->MoveUp(+1.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
 		default:
 			break;
 		}
@@ -283,6 +277,7 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	{
 		if (m_ppGameObjects[i])
 		{
+			m_ppGameObjects[i]->catchPlayer(m_pPlayer, 0.03f);
 			m_ppGameObjects[i]->Animate(m_fElapsedTime, NULL);
 			m_ppGameObjects[i]->UpdateTransform(NULL);
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);

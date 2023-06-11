@@ -133,6 +133,8 @@ public:
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
 
+	float							m_fYaw = 0.0f;
+
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
 	void SetShader(int nMaterial, CShader *pShader);
@@ -173,6 +175,8 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
+
+	void catchPlayer(CPlayer* player, float fDistance);
 
 	CGameObject *GetParent() { return(m_pParent); }
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
@@ -312,7 +316,6 @@ class CM26Object : public CTankObject
 {
 public:
 	CM26Object();
-	CM26Object(float x, float y, float z);
 	virtual ~CM26Object();
 
 	virtual void OnInitialize();
