@@ -60,8 +60,9 @@ public:
 	bool ProcessInput(UCHAR *pKeysBuffer);
     void AnimateObjects(float fTimeElapsed);
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
-
 	void ReleaseUploadBuffers();
+
+	void CheckTankByBulletCollisions();
 
 	CPlayer						*m_pPlayer = NULL;
 

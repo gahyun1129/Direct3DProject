@@ -25,6 +25,8 @@ public:
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
 
+	void CreateRenderTargetViewsAndDepthStencilView();
+
 	void ChangeSwapChainState();
 
     void BuildObjects();
@@ -81,8 +83,12 @@ private:
 	CGameTimer					m_GameTimer;
 
 	CScene						*m_pScene = NULL;
+	int							m_nScene = 0;
+
 	CPlayer						*m_pPlayer = NULL;
 	CCamera						*m_pCamera = NULL;
+
+	bool						m_bRenderBoundingBox = false;
 
 	POINT						m_ptOldCursorPos;
 

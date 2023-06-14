@@ -324,10 +324,10 @@ void CGameObject::catchPlayer(CPlayer* player, float fDistance) {
 	
 	m_fYaw = XMScalarACos(curm_fYaw);
 	if (xmf3Position.x < xmf3PlayerPosition.x) {
-		Rotate(0.0f, 360.0f - m_fYaw * 50, 0.0f);
+		Rotate(0.0f, 360.0f - m_fYaw * 25, 0.0f);
 	}
 	else {
-		Rotate(0.0f, m_fYaw * 50, 0.0f);
+		Rotate(0.0f, m_fYaw * 25, 0.0f);
 	}
 
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDistance);

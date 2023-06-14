@@ -288,3 +288,13 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	}
 }
 
+void CScene::CheckTankByBulletCollisions() {
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		
+			CGameObject* pGameObject = m_ppGameObjects[i];
+			if (pGameObject->m_xmBoundingBox.Intersects(pTargetGameObject->m_xmBoundingBox)) return(true);
+	
+	}
+	return(false);
+}
