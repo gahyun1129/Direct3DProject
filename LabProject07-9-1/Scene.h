@@ -40,45 +40,69 @@ struct LIGHTS
 class CScene
 {
 public:
-    CScene();
-    ~CScene();
+	CScene();
+	~CScene();
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
 	void BuildDefaultLightsAndMaterials();
-	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseObjects();
 
-	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
+	ID3D12RootSignature* GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 
-	bool ProcessInput(UCHAR *pKeysBuffer);
-    void AnimateObjects(float fTimeElapsed);
-    void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+	bool ProcessInput(UCHAR* pKeysBuffer);
+	void AnimateObjects(float fTimeElapsed);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
 	void ReleaseUploadBuffers();
 
-	void CheckTankByBulletCollisions();
+	CHeightMapTerrain* GetTerrain() { return(m_pTerrain); }
 
-	CPlayer						*m_pPlayer = NULL;
+	CPlayer* m_pPlayer = NULL;
+
+	CHeightMapTerrain* m_pTerrain = NULL;
+
+
+	void EnemySpawn();
+	void ChangeSpawnField();
+
+	void CheckPlayerByObjectCollisions();
+	void CheckMissileByObjectCollisions();
+	void CheckObjectArriveEndline();
+	void CheckObjectByGroundCollisions();
+	void CheckPlayerArriveEndline();
+	void CheckPlayerByGroundCollisions();
 
 public:
-	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	CGameObject					**m_ppGameObjects = NULL;
-	int							m_nGameObjects = 0;
+	std::list<CGameObject*>		m_lpGameObjects;
 
-	LIGHT						*m_pLights = NULL;
+	LIGHT* m_pLights = NULL;
 	int							m_nLights = 0;
 
 	XMFLOAT4					m_xmf4GlobalAmbient;
 
-	ID3D12Resource				*m_pd3dcbLights = NULL;
-	LIGHTS						*m_pcbMappedLights = NULL;
+	ID3D12Resource* m_pd3dcbLights = NULL;
+	LIGHTS* m_pcbMappedLights = NULL;
 
 	float						m_fElapsedTime = 0.0f;
+
+	float						m_fSpawnDelay = 3.0f;
+	float						m_fSpawnElapsed = 0.0f;
+	bool						m_bIsChangeSpawnField = false;
+
+	CGameObject* pGunshipModel;
+	CGunshipObject* pGunShipObject;
+	CGameObject* pSuperCobraModel;
+	CSuperCobraObject* pSuperCobraObject;
+	CGameObject* pMi24Model;
+	CMi24Object* pMi24Object;
 };

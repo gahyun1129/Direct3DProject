@@ -65,75 +65,31 @@ void CScene::BuildDefaultLightsAndMaterials()
 void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
+	
+	CHellicopterObject::PrepareExplosion(pd3dDevice, pd3dCommandList);
+	CHellicopterObject::PrepareMovePosition();
+	
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	BuildDefaultLightsAndMaterials();
+	pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
+	pGunshipModel->SetBoundingBox(pGunshipModel->m_xmOOBB, pGunshipModel);
+	pGunshipModel->SetScale(5.0f, 5.0f, 5.0f);
+	pGunShipObject = nullptr;
 
-	m_nGameObjects = 1;
-	m_ppGameObjects = new CGameObject*[m_nGameObjects];
+	pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
+	pSuperCobraModel->SetBoundingBox(pSuperCobraModel->m_xmOOBB, pSuperCobraModel);
+	pSuperCobraModel->SetScale(5.0f, 5.0f, 5.0f);
+	pSuperCobraObject = nullptr;
 
-	//CGameObject *pApacheModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
-	//CApacheObject* pApacheObject = NULL;
-	//pApacheObject = new CApacheObject();
-	//pApacheObject->SetChild(pApacheModel, true);
-	//pApacheObject->OnInitialize();
-	//pApacheObject->SetPosition(+130.0f, 0.0f, 160.0f);
-	//pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
-	//pApacheObject->Rotate(0.0f, 90.0f, 0.0f);
-	//m_ppGameObjects[0] = pApacheObject;
-	//pApacheObject = new CApacheObject();
-	//pApacheObject->SetChild(pApacheModel, true);
-	//pApacheObject->OnInitialize();
-	//pApacheObject->SetPosition(-75.0f, 0.0f, 80.0f);
-	//pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
-	//pApacheObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[1] = pApacheObject;
-	CGameObject *pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
-	CGunshipObject* pGunshipObject = NULL;
-	pGunshipObject = new CGunshipObject();
-	pGunshipObject->SetChild(pGunshipModel, true);
-	pGunshipObject->OnInitialize();
-	pGunshipObject->SetPosition(50.0f, 0.0f, 220.0f);
-	pGunshipObject->SetScale(8.5f, 8.5f, 8.5f);
-	pGunshipObject->Rotate(0.0f, 180.0f, 0.0f);
-	m_ppGameObjects[0] = pGunshipObject;
-	//CGameObject *pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
-	//CSuperCobraObject* pSuperCobraObject = NULL;
-	//pSuperCobraObject = new CSuperCobraObject();
-	//pSuperCobraObject->SetChild(pSuperCobraModel, true);
-	//pSuperCobraObject->OnInitialize();
-	//pSuperCobraObject->SetPosition(95.0f, 50.0f, 50.0f);
-	//pSuperCobraObject->SetScale(4.5f, 4.5f, 4.5f);
-	//pSuperCobraObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[3] = pSuperCobraObject;
-	//CGameObject *pMi24Model = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Mi24.bin");
-	//CMi24Object* pMi24Object = new CMi24Object();
-	//pMi24Object->SetChild(pMi24Model, true);
-	//pMi24Object->OnInitialize();
-	//pMi24Object->SetPosition(-95.0f, 50.0f, 50.0f);
-	//pMi24Object->SetScale(4.5f, 4.5f, 4.5f);
-	//pMi24Object->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[4] = pMi24Object;
-	// 
-	//CGameObject* pHummerModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Hummer.bin");
-	//CHummerObject* pHummerObject = new CHummerObject();
-	//pHummerObject->SetChild(pHummerModel);
-	//pHummerObject->OnInitialize();
-	//pHummerObject->SetPosition(0.0f, 0.0f, 150.0f);
-	//pHummerObject->SetScale(18.0f, 18.0f, 18.0f);
-	//pHummerObject->Rotate(0.0f, -90.0f, 0.0f);
-	//m_ppGameObjects[0] = pHummerObject;
-
-	//CGameObject* pAbramsModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/M26.bin");
-	//CM26Object* pTankObject = NULL;	
-	//pTankObject = new CM26Object();
-	//pTankObject->SetChild(pAbramsModel, true);
-	//pTankObject->OnInitialize();
-	//pTankObject->Rotate(0.0f, 0.0f, 0.0f);
-	//pTankObject->SetPosition(0.0f, 0.0f, 150.0f);
-	//m_ppGameObjects[0] = pTankObject;
-
+	pMi24Model = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Mi24.bin");
+	pMi24Model->SetBoundingBox(pMi24Model->m_xmOOBB, pMi24Model);
+	pMi24Model->SetScale(5.0f, 5.0f, 5.0f);
+	pMi24Object = nullptr;
+	maxEnemyNum = rand() % 15 + 10;
+	
+	CreateEnemy();
+	
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -141,10 +97,9 @@ void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
+	while (m_lpGameObjects.size()) {
+		m_lpGameObjects.back()->Release();
+		m_lpGameObjects.pop_back();
 	}
 
 	ReleaseShaderVariables();
@@ -219,7 +174,7 @@ void CScene::ReleaseShaderVariables()
 
 void CScene::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (const auto& elm : m_lpGameObjects) elm->ReleaseUploadBuffers();
 }
 
 bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -229,20 +184,6 @@ bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 
 bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	switch (nMessageID)
-	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 'W':
-			m_ppGameObjects[0]->Rotate(0.0f, 5.0f, 0.0f); break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
 	return(false);
 }
 
@@ -255,17 +196,32 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
+	for (const auto & elm : m_lpGameObjects) {
+		CHellicopterObject* Object = (CHellicopterObject*)elm;
+		Object->Animate(fTimeElapsed, NULL, m_pPlayer->GetPosition());
+	}
 
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
+
+	m_fSpawnElapsed += fTimeElapsed;
+	if (m_fSpawnElapsed >= m_fSpawnDelay && m_lpGameObjects.size() < maxEnemyNum) {
+		m_fSpawnElapsed -= m_fSpawnDelay;
+		CreateEnemy();
+	}
+	// CheckMissileByObjectCollisions();
+	CheckObjectArriveEndline();
+	CheckPlayerByObjectCollisions();
+	CheckPlayerArriveEndline();
+
 }
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
+
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
@@ -275,26 +231,116 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+	for (const auto& elm : m_lpGameObjects) {
+		elm->UpdateTransform(NULL);
+		elm->Render(pd3dCommandList, pCamera);
+	}
+}
 
-	for (int i = 0; i < m_nGameObjects; i++)
-	{
-		if (m_ppGameObjects[i])
-		{
-			m_ppGameObjects[i]->catchPlayer(m_pPlayer, 0.03f);
-			m_ppGameObjects[i]->Animate(m_fElapsedTime, NULL);
-			m_ppGameObjects[i]->UpdateTransform(NULL);
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
+
+
+void CScene::CreateEnemy()
+{
+	int nSelectedObject = rand() % 2;
+	float x = 400.0f - (float)(rand() % 80 * 10);
+	float z = 400.0f - (float)(rand() % 80 * 10);
+	float y = 400.0f - (float)(rand() % 80 * 10);
+	XMFLOAT3 SpawnPosition = XMFLOAT3(x, y, z);
+	switch (nSelectedObject) {
+	case 0:
+		pGunShipObject = new CGunshipObject();
+		pGunShipObject->SetChild(pGunshipModel, true);
+		pGunShipObject->OnInitialize();
+		pGunShipObject->SetBoundingBox(pGunShipObject->m_xmOOBB, pGunshipModel);
+		pGunShipObject->SetPosition(SpawnPosition);
+		pGunShipObject->m_iPosition = 5;
+		m_lpGameObjects.push_back(pGunShipObject);
+		break;
+	case 1:
+		pSuperCobraObject = new CSuperCobraObject();
+		pSuperCobraObject->SetChild(pSuperCobraModel, true);
+		pSuperCobraObject->OnInitialize();
+		pSuperCobraObject->SetBoundingBox(pSuperCobraObject->m_xmOOBB, pSuperCobraModel);
+		pSuperCobraObject->SetPosition(SpawnPosition);
+		pSuperCobraObject->m_iPosition = 5;
+		m_lpGameObjects.push_back(pSuperCobraObject);
+		break;
+	case 2:
+		pMi24Object = new CMi24Object();
+		pMi24Object->SetChild(pMi24Model, true);
+		pMi24Object->OnInitialize();
+		pMi24Object->SetBoundingBox(pMi24Object->m_xmOOBB, pMi24Model);
+		pMi24Object->SetPosition(SpawnPosition);
+		pMi24Object->m_iPosition = 5;
+		m_lpGameObjects.push_back(pMi24Object);
+		break;
+	}
+}
+
+void CScene::CheckMissileByObjectCollisions()
+{
+	CAirplanePlayer* Player = (CAirplanePlayer*)m_pPlayer;
+
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (Player->m_pMissileObject[i].m_bIsShooted && !Player->m_pMissileObject[i].m_bBlowingUp) {
+			for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
+				CHellicopterObject* Hellicopter = (CHellicopterObject*)*iter;
+				if (Hellicopter->m_xmOOBB.Intersects(Player->m_pMissileObject[i].m_xmOOBB)) {
+					Player->m_pMissileObject[i].ExploseMissile();
+					m_lpGameObjects.erase(iter);
+					break;
+				}
+			}
+		}
+	}
+
+}
+
+void CScene::CheckObjectArriveEndline()
+{
+	for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
+		CHellicopterObject* Hellicopter = (CHellicopterObject*)*iter;
+		if (Hellicopter->m_iPosition + 1 == Hellicopter->m_vxmf3MovePosition.size()) {
+			m_lpGameObjects.erase(iter);
+
+			break;
 		}
 	}
 }
 
-void CScene::CheckTankByBulletCollisions() {
-	for (int i = 0; i < m_nGameObjects; i++)
-	{
-		
-			CGameObject* pGameObject = m_ppGameObjects[i];
-			if (pGameObject->m_xmBoundingBox.Intersects(pTargetGameObject->m_xmBoundingBox)) return(true);
-	
+void CScene::CheckPlayerByObjectCollisions()
+{
+	CAirplanePlayer* Player = (CAirplanePlayer*)m_pPlayer;
+	for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
+		CHellicopterObject* Hellicopter = (CHellicopterObject*)*iter;
+		if (Hellicopter->m_xmOOBB.Intersects(m_pPlayer->m_xmOOBB)) {
+			Hellicopter->m_bBlowingUp = true;
+		}
+		if (Hellicopter->m_bBlowingUp && Hellicopter->m_fElapsedTimes >= Hellicopter->m_fDuration) {
+			m_lpGameObjects.erase(iter);
+			Player->HP -= 20;
+			break;
+		}
 	}
-	return(false);
+}
+
+void CScene::CheckPlayerArriveEndline()
+{
+	XMFLOAT3 xmf3PlayerPosition = m_pPlayer->GetPosition();
+	if (xmf3PlayerPosition.x >= 7670.0f) {
+		xmf3PlayerPosition.x = 7670.0f;
+	}
+	if (xmf3PlayerPosition.x <= 0.0f) {
+		xmf3PlayerPosition.x = 0.0f;
+	}
+	if (xmf3PlayerPosition.y >= 1700.0f) {
+		xmf3PlayerPosition.y = 1700.0f;
+	}
+	if (xmf3PlayerPosition.z >= 7670.0f) {
+		xmf3PlayerPosition.z = 7670.0f;
+	}
+	if (xmf3PlayerPosition.z <= 0.0f) {
+		xmf3PlayerPosition.z = 0.0f;
+	}
+	m_pPlayer->SetPosition(xmf3PlayerPosition);
 }

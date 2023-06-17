@@ -172,6 +172,12 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 }
 
+void CPlayer::UpdateBoundingBox()
+{
+	XMFLOAT3 Pos = GetPosition();
+	m_xmOOBB.Center = Pos;
+}
+
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	CCamera *pNewCamera = NULL;
@@ -244,6 +250,10 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 	pGameObject->Rotate(15.0f, 0.0f, 0.0f);
 	pGameObject->SetScale(8.5f, 8.5f, 8.5f);
+	CGameObject::SetBoundingBox(pGameObject->m_xmOOBB, pGameObject);
+
+	m_pMissileObject = new CMissileObject[MAX_LAUNCH_MISSILE];
+
 	SetChild(pGameObject, true);
 
 	OnInitialize();
@@ -276,8 +286,19 @@ void CAirplanePlayer::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 4.0f) * fTimeElapsed);
 		m_pTailRotorFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4Transform);
 	}
-
+	m_xmfPositionCache = GetPosition();
+	//for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+	//	if (m_pMissileObject[i].m_bIsShooted) {
+	//		m_pMissileObject[i].Animate(fTimeElapsed, pxmf4x4Parent, i);
+	//	}
+	//}
 	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
+	CPlayer::UpdateBoundingBox();
+}
+void CAirplanePlayer::ResetPosition()
+{
+	SetPosition(m_xmfPositionCache);
+	UpdateBoundingBox();
 }
 
 void CAirplanePlayer::OnPrepareRender()
@@ -335,5 +356,32 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	Update(fTimeElapsed);
 
 	return(m_pCamera);
+}
+void CAirplanePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (m_pMissileObject[i].m_bIsShooted) {
+			m_pMissileObject[i].Render(pd3dCommandList, pCamera, i);
+		}
+	}
+	CPlayer::Render(pd3dCommandList, pCamera);
+}
+
+void CAirplanePlayer::ShotMissile()
+{
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (!m_pMissileObject[i].m_bIsShooted) {
+			m_pMissileObject[i].ShootMissile(m_xmf4x4World, i);
+			break;
+		}
+	}
+}
+
+bool CAirplanePlayer::checkPlayerHP()
+{
+	if (HP == 0) {
+		return true;
+	}
+	return false;
 }
 

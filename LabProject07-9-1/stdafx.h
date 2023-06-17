@@ -22,6 +22,8 @@
 
 #include <fstream>
 #include <vector>
+#include <list>
+#include <random>
 
 using namespace std;
 
@@ -48,12 +50,10 @@ using Microsoft::WRL::ComPtr;
 
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
-#define MAX_LIGHTS				8 
-#define MAX_SCENE_MATERIALS		16 
 
-#define POINT_LIGHT				1
-#define SPOT_LIGHT				2
-#define DIRECTIONAL_LIGHT		3
+#define MAX_LAUNCH_MISSILE		20	
+#define EXPLOSION_DEBRISES		36
+
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS
 //#define _WITH_CB_GAMEOBJECT_ROOT_DESCRIPTOR
 #define _WITH_CB_WORLD_MATRIX_DESCRIPTOR_TABLE
@@ -80,8 +80,62 @@ inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 
+namespace RD
+{
+	inline XMFLOAT3 GetRandomXMFLOAT3(float start, float end)
+	{
+		std::random_device rd;
+		std::default_random_engine dre(rd());
+
+		XMFLOAT3 xmf3Result;
+		std::uniform_real_distribution<float> value(start, end);
+		xmf3Result.x = value(dre);
+		xmf3Result.y = value(dre);
+		xmf3Result.z = value(dre);
+		return xmf3Result;
+	}
+
+	inline float GetRandomfloat(float start, float end)
+	{
+		std::random_device rd;
+		std::default_random_engine dre(rd());
+
+		std::uniform_real_distribution<float> value(start, end);
+		return value(dre);
+	}
+
+	inline XMINT3 GetRandomXMINT3(int start, int end)
+	{
+		std::random_device rd;
+		std::default_random_engine dre(rd());
+
+		XMINT3 xmi3Result;
+		std::uniform_int_distribution<int> value(start, end);
+		xmi3Result.x = value(dre);
+		xmi3Result.y = value(dre);
+		xmi3Result.z = value(dre);
+		return xmi3Result;
+	}
+
+	inline int GetRandomint(int start, int end)
+	{
+		std::random_device rd;
+		std::default_random_engine dre(rd());
+
+		std::uniform_int_distribution<int> value(start, end);
+		return value(dre);
+	}
+}
+
 namespace Vector3
 {
+	//3-차원 벡터가 영벡터인 가를 반환하는 함수이다. 
+	inline bool IsZero(const XMFLOAT3& xmf3Vector)
+	{
+		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
+			return(true);
+		return(false);
+	}
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)
 	{
 		XMFLOAT3 xmf3Result;
@@ -150,7 +204,13 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
 		return(xmf3Result.x);
 	}
-
+	inline float Length(float x, float y, float z)
+	{
+		XMFLOAT3 xmf3Result;
+		XMFLOAT3 Pos{ x,y,z };
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&Pos)));
+		return(xmf3Result.x);
+	}
 	inline float Angle(XMVECTOR& xmvVector1, XMVECTOR& xmvVector2)
 	{
 		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
@@ -181,16 +241,29 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 }
-
 namespace Vector4
 {
-	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	inline XMFLOAT4 Add(const XMFLOAT4& xmf4Vector1, const XMFLOAT4& xmf4Vector2)
 	{
 		XMFLOAT4 xmf4Result;
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
+	inline XMFLOAT4 Multiply(const XMFLOAT4& xmf4Vector1, const XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) *
+			XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+	inline XMFLOAT4 Multiply(const float fScalar, const XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
 }
+
 
 namespace Matrix4x4
 {
@@ -221,7 +294,12 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
 		return(xmmtx4x4Result);
 	}
-
+	inline XMFLOAT4X4 RotationAxis(XMFLOAT3& xmf3Axis, float fAngle)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixRotationAxis(XMLoadFloat3(&xmf3Axis), XMConvertToRadians(fAngle)));
+		return(xmmtx4x4Result);
+	}
 	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)
 	{
 		XMFLOAT4X4 xmmtx4x4Result;

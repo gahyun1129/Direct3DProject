@@ -63,6 +63,7 @@ public:
 	void Rotate(float x, float y, float z);
 
 	void Update(float fTimeElapsed);
+	void UpdateBoundingBox();
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
@@ -79,6 +80,8 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+
+	virtual void ShotMissile() {};
 };
 
 class CAirplanePlayer : public CPlayer
@@ -90,6 +93,12 @@ public:
 	CGameObject*				m_pMainRotorFrame = NULL;
 	CGameObject*				m_pTailRotorFrame = NULL;
 
+	XMFLOAT3							m_xmfPositionCache;
+	void								ResetPosition();
+
+	int									HP = 100;
+
+	CMissileObject* m_pMissileObject = nullptr;
 private:
 	virtual void OnInitialize();
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent = NULL);
@@ -97,6 +106,11 @@ private:
 public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPrepareRender();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+	
+	virtual void ShotMissile();
+
+	bool checkPlayerHP();
 };
 
 

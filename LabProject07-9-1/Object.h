@@ -98,11 +98,11 @@ public:
 
 	void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList);
 
-protected:
+public:
 	static CShader					*m_pIlluminatedShader;
 
 public:
-	static void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
+	static void PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 };
 
 class CGameObject
@@ -129,11 +129,16 @@ public:
 	XMFLOAT4X4						m_xmf4x4Transform;
 	XMFLOAT4X4						m_xmf4x4World;
 
+	BoundingOrientedBox				m_xmOOBB = BoundingOrientedBox();
+
 	CGameObject 					*m_pParent = NULL;
 	CGameObject 					*m_pChild = NULL;
 	CGameObject 					*m_pSibling = NULL;
 
-	float							m_fYaw = 0.0f;
+	bool							m_bBlowingUp = false;
+
+	void SetBoundingBox(BoundingOrientedBox& xmOOBB, CGameObject* pGameObject);
+	void SetExtents(BoundingOrientedBox& xmOOBB1, BoundingOrientedBox& xmOOBB2);
 
 	void SetMesh(CMesh *pMesh);
 	void SetShader(CShader *pShader);
@@ -149,6 +154,9 @@ public:
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World, CDiffusedMesh* pMesh);
+	void UpdateBoundingBox();
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -175,8 +183,6 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	void Rotate(XMFLOAT4 *pxmf4Quaternion);
-
-	void catchPlayer(CPlayer* player, float fDistance);
 
 	CGameObject *GetParent() { return(m_pParent); }
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
@@ -229,6 +235,42 @@ public:
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent=NULL);
 };
 
+class CMissileObject : public CGameObject
+{
+public:
+	CMissileObject();
+	virtual ~CMissileObject();
+
+	XMFLOAT4X4					m_pxmf4x4Transforms[MAX_LAUNCH_MISSILE];
+	XMFLOAT4X4					m_pxmf4x4MissileTransforms[MAX_LAUNCH_MISSILE][EXPLOSION_DEBRISES];
+
+	float							m_fElapsedTimes = 0.0f;
+	float							m_fBlowingDuration = 3.0f;
+	float							m_fDuration = 5.0f;
+	float						m_fExplosionSpeed = 100.0f;
+	float						m_fExplosionRotation = 360.0f;
+	float						m_fMoveSpeed = 600.0f;
+
+	bool						m_bIsShooted = false;
+
+public:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, int iMissileNumber);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int iMissileNumber);
+
+	static CDiffusedMesh* m_pMissileMesh;
+
+	static CDiffusedMesh* m_pExplosionMesh;
+	static XMFLOAT3				m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+
+	static void PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void ShootMissile(XMFLOAT4X4 xmf4x4World, int iMissileNumber);
+	void ExploseMissile();
+};
+
+
+
 class CHellicopterObject : public CGameObject
 {
 public:
@@ -240,8 +282,29 @@ protected:
 	CGameObject					*m_pTailRotorFrame = NULL;
 
 public:
+	static std::vector<XMFLOAT3>			m_vxmf3MovePosition;
+	static void PrepareMovePosition();
+	int									m_iPosition;
+
+
+	XMFLOAT4X4					m_pxmf4x4Transforms[EXPLOSION_DEBRISES];
+
+	float							m_fElapsedTimes = 0.0f;
+	float							m_fDuration = 3.0f;
+	float						m_fExplosionSpeed = 100.0f;
+	float						m_fExplosionRotation = 360.0f;
+
 	virtual void OnInitialize();
-	virtual void Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent = NULL);
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, XMFLOAT3 xmfMovePosition);
+	void catchPlayer(float fTimeElapsed, XMFLOAT3 xmfMovePosition);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
+	static CDiffusedMesh* m_pExplosionMesh;
+	static XMFLOAT3				m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+
+	static void PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
 };
 
 class CApacheObject : public CHellicopterObject
@@ -282,45 +345,5 @@ public:
 	virtual ~CMi24Object();
 
 public:
-	virtual void OnInitialize();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CHummerObject : public CGameObject
-{
-public:
-	CHummerObject();
-	virtual ~CHummerObject();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CTankObject : public CGameObject
-{
-public:
-	CTankObject();
-	virtual ~CTankObject();
-
-protected:
-	CGameObject* m_pBodyFrame = NULL;
-	CGameObject* m_pTurretFrame = NULL;
-	CGameObject* m_pCannonFrame = NULL;
-	CGameObject* m_pGunFrame = NULL;
-	CGameObject* m_pCaterpillar_RFrame = NULL;
-	CGameObject* m_pCaterpillar_LFrame = NULL;
-	CGameObject* m_pPoleFrame = NULL;
-
-public:
-	virtual void OnInitialize();
-	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
-};
-
-class CM26Object : public CTankObject
-{
-public:
-	CM26Object();
-	virtual ~CM26Object();
-
 	virtual void OnInitialize();
 };
