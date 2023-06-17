@@ -334,15 +334,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_F4:
-			m_pScene->ChangeSpawnField();
-			break;
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
 		case VK_F5:
 			break;
-		case VK_CONTROL:
+		case VK_NUMPAD0:
 			m_pPlayer->ShotMissile();
 			break;
 		default:
@@ -422,15 +419,9 @@ void CGameFramework::BuildObjects()
 	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	CTankPlayer* pTankPlayer = new CTankPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	pTankPlayer->SetBoundingBox(pTankPlayer->m_xmOOBB, pTankPlayer);
-	pTankPlayer->SetPosition(XMFLOAT3(2600.0f, 0.0f, 300.0f));
+	pTankPlayer->SetPosition(XMFLOAT3(3830.0f, 0.0f, 3830.0f));
 	pTankPlayer->SetScale(0.1f, 0.1f, 0.1f);
 	m_pScene->m_pPlayer = m_pPlayer = pTankPlayer;
-
-	//CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	//pAirplanePlayer->SetBoundingBox(pAirplanePlayer->m_xmOOBB, pAirplanePlayer);
-	//pAirplanePlayer->SetPosition(XMFLOAT3(2600.0f, 860.0f, 300.0f));
-	//pAirplanePlayer->SetScale(0.1f, 0.1f, 0.1f);
-	//m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
 
 	m_pCamera = m_pPlayer->GetCamera();
 

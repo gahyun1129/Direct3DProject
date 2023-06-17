@@ -1134,13 +1134,10 @@ void CTankObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 void CTankObject::PrepareMovePosition()
 {
-	m_vxmf3MovePosition.push_back(XMFLOAT3(6344.0f, 0.0f, 3981.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(6183.0f, 702.0f, 5448.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(4680.0f, 1514.0f, 7249.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(2946.0f, 1514.0f, 7208.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(1821.0f, 853.0f, 4722.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(2680.0f, 950.0f, 2855.0f));
-	m_vxmf3MovePosition.push_back(XMFLOAT3(2600.0f, 860.0f, 0.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(4500.0f, 0.0f, 4500.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(4500.0f, 0.0f, 3100.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(3100.0f, 0.0f, 3100.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(3100.0f, 0.0f, 4500.0f));
 }
 
 CM26Object::CM26Object()

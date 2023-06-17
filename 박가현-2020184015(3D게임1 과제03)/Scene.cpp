@@ -103,21 +103,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 #endif
 
 	m_pTerrain->SetPosition(0.0f, 0.0f, 0.0f);
-	
-	pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
-	pGunshipModel->SetBoundingBox(pGunshipModel->m_xmOOBB, pGunshipModel);
-	pGunshipModel->SetScale(5.0f, 5.0f, 5.0f);
-	pGunShipObject = nullptr;
-	
-	pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/SuperCobra.bin");
-	pSuperCobraModel->SetBoundingBox(pSuperCobraModel->m_xmOOBB, pSuperCobraModel);
-	pSuperCobraModel->SetScale(5.0f, 5.0f, 5.0f);
-	pSuperCobraObject = nullptr;
-
-	pMi24Model = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Mi24.bin");
-	pMi24Model->SetBoundingBox(pMi24Model->m_xmOOBB, pMi24Model);
-	pMi24Model->SetScale(5.0f, 5.0f, 5.0f);
-	pMi24Object = nullptr;
 
 	pTankModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/M26.bin");
 	pTankModel->SetBoundingBox(pTankModel->m_xmOOBB, pTankModel);
@@ -254,7 +239,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	}
 
 	CheckMissileByObjectCollisions();
-	CheckObjectArriveEndline();
+	// CheckObjectArriveEndline();
 	CheckPlayerByObjectCollisions();
 	CheckPlayerArriveEndline();
 	CheckObjectByGroundCollisions();
@@ -283,74 +268,16 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 void CScene::CreateObjects()
 {
-	int nSelectedObject = RD::GetRandomint(0, 3);
-
 	XMFLOAT3 SpawnPosition;
-	if (m_bIsChangeSpawnField) {
-		SpawnPosition = CTankObject::m_vxmf3MovePosition[5];
-	}
-	else {
-		SpawnPosition = CTankObject::m_vxmf3MovePosition.front();
-	}
-	nSelectedObject = 3;
-	switch (nSelectedObject) {
-	case 0:
-		pGunShipObject = new CGunshipObject();
-		pGunShipObject->SetChild(pGunshipModel, true);
-		pGunShipObject->OnInitialize();
-		pGunShipObject->SetBoundingBox(pGunShipObject->m_xmOOBB, pGunshipModel);
-		pGunShipObject->SetPosition(SpawnPosition);
-		if (m_bIsChangeSpawnField) {
-			pGunShipObject->m_iPosition = 5;
-		}
-		else {
-			pGunShipObject->m_iPosition = 0;
-		}
-		m_lpGameObjects.push_back(pGunShipObject);
-		break;
-	case 1:
-		pSuperCobraObject = new CSuperCobraObject();
-		pSuperCobraObject->SetChild(pSuperCobraModel, true);
-		pSuperCobraObject->OnInitialize();
-		pSuperCobraObject->SetBoundingBox(pSuperCobraObject->m_xmOOBB, pSuperCobraModel);
-		pSuperCobraObject->SetPosition(SpawnPosition);
-		if (m_bIsChangeSpawnField) {
-			pSuperCobraObject->m_iPosition = 5;
-		}
-		else {
-			pSuperCobraObject->m_iPosition = 0;
-		}
-		m_lpGameObjects.push_back(pSuperCobraObject);
-		break;
-	case 2:
-		pMi24Object = new CMi24Object();
-		pMi24Object->SetChild(pMi24Model, true);
-		pMi24Object->OnInitialize();
-		pMi24Object->SetBoundingBox(pMi24Object->m_xmOOBB, pMi24Model);
-		pMi24Object->SetPosition(SpawnPosition);
-		if (m_bIsChangeSpawnField) {
-			pMi24Object->m_iPosition = 5;
-		}
-		else {
-			pMi24Object->m_iPosition = 0;
-		}
-		m_lpGameObjects.push_back(pMi24Object);
-		break;
-	case 3:
-		pTankObject = new CM26Object();
-		pTankObject->SetChild(pTankModel, true);
-		pTankObject->OnInitialize();
-		pTankObject->SetBoundingBox(pTankObject->m_xmOOBB, pTankModel);
-		pTankObject->SetPosition(SpawnPosition);
-		if (m_bIsChangeSpawnField) {
-			pTankObject->m_iPosition = 5;
-		}
-		else {
-			pTankObject->m_iPosition = 0;
-		}
-		m_lpGameObjects.push_back(pTankObject);
-		break;
-	}
+	int selectedNum = rand() % CTankObject::m_vxmf3MovePosition.size();
+	SpawnPosition = CTankObject::m_vxmf3MovePosition[selectedNum];
+	pTankObject = new CM26Object();
+	pTankObject->SetChild(pTankModel, true);
+	pTankObject->OnInitialize();
+	pTankObject->SetBoundingBox(pTankObject->m_xmOOBB, pTankModel);
+	pTankObject->SetPosition(SpawnPosition);
+
+	m_lpGameObjects.push_back(pTankObject);
 }
 
 void CScene::ChangeSpawnField()
@@ -386,10 +313,23 @@ void CScene::CheckObjectArriveEndline()
 {
 	for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
 		CTankObject* Tank = (CTankObject*)*iter;
-		if (Tank->m_iPosition + 1 == Tank->m_vxmf3MovePosition.size()) {
-			m_lpGameObjects.erase(iter);
-			break;
+		XMFLOAT3 xmf3TankPosition = Tank->GetPosition();
+		if (xmf3TankPosition.x >= 7670.0f) {
+			xmf3TankPosition.x = 7670.0f;
 		}
+		if (xmf3TankPosition.x <= 0.0f) {
+			xmf3TankPosition.x = 0.0f;
+		}
+		if (xmf3TankPosition.y >= 1700.0f) {
+			xmf3TankPosition.y = 1700.0f;
+		}
+		if (xmf3TankPosition.z >= 7670.0f) {
+			xmf3TankPosition.z = 7670.0f;
+		}
+		if (xmf3TankPosition.z <= 0.0f) {
+			xmf3TankPosition.z = 0.0f;
+		}
+		Tank->SetPosition(xmf3TankPosition);
 	}
 }
 
@@ -399,11 +339,8 @@ void CScene::CheckObjectByGroundCollisions()
 		CTankObject* Tank = (CTankObject*)*iter;
 		XMFLOAT3 xmf3TankPosition = Tank->GetPosition();
 		float fHeight = m_pTerrain->GetHeight(xmf3TankPosition.x, xmf3TankPosition.z);
-		if (xmf3TankPosition.y < fHeight)
-		{
-			xmf3TankPosition.y = fHeight;
-			Tank->SetPosition(xmf3TankPosition);
-		}
+		xmf3TankPosition.y = fHeight;
+		Tank->SetPosition(xmf3TankPosition);
 	}
 }
 
