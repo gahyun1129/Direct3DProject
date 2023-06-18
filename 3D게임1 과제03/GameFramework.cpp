@@ -300,13 +300,15 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
-		case WM_LBUTTONDOWN:
 		case WM_RBUTTONDOWN:
+			break;
+		case WM_LBUTTONDOWN:
 			::SetCapture(hWnd);
 			::GetCursorPos(&m_ptOldCursorPos);
 			break;
-		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
+			break;
+		case WM_LBUTTONUP:
 			::ReleaseCapture();
 			break;
 		case WM_MOUSEMOVE:
@@ -345,6 +347,17 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case 'R':
 			ReleaseObjects();
 			BuildObjects();
+			break;
+		case VK_NUMPAD1:
+			XMFLOAT3 offset = m_pCamera->GetOffset();
+			m_pCamera->SetOffset(XMFLOAT3(offset.x, offset.y+5.0f, offset.z-10.0f));
+			break;
+		case VK_NUMPAD2:
+			offset = m_pCamera->GetOffset();
+			m_pCamera->SetOffset(XMFLOAT3(offset.x, offset.y - 5.0f, offset.z + 10.0f));
+			break;
+		case VK_NUMPAD4:
+			setRotate = true;
 			break;
 		default:
 			break;
@@ -424,7 +437,7 @@ void CGameFramework::BuildObjects()
 
 	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	pAirplanePlayer->SetBoundingBox(pAirplanePlayer->m_xmOOBB, pAirplanePlayer);
-	pAirplanePlayer->SetPosition(XMFLOAT3(2600.0f, 860.0f, 300.0f));
+	pAirplanePlayer->SetPosition(XMFLOAT3(3830.0f, 1000.0f, 3830.0f));
 	pAirplanePlayer->SetScale(0.1f, 0.1f, 0.1f);
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -479,26 +492,16 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection) m_pPlayer->Move(dwDirection, 150.0f, true);
 		}
+		//if (setRotate) {
+		//	setRotate = false;
+		//	m_pPlayer->Rotate(0.0f, 0.0f, 0.0f);
+		//}
 	}
 	
-	//if (!bProcessedByScene && !m_pPlayer->m_bIsCollide)
-	//{
-	//	DWORD dwDirection = 0;
-	//	if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-	//	if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
-
-	//	if ((dwDirection != 0) && m_pPlayer->GetVelocity().x == 0)
-	//		if (dwDirection) 
-	//			m_pPlayer->Move(dwDirection, 1500.0f, true);
-	//	
-	//}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
@@ -563,7 +566,7 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	float pfClearColor[4] = { 0.5f, 0.625f, 0.9f, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();

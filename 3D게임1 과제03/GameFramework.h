@@ -85,7 +85,8 @@ private:
 	CCamera						*m_pCamera = NULL;
 
 	POINT						m_ptOldCursorPos;
-
+	
+	bool						setRotate = false;
 	_TCHAR						m_pszFrameRate[70];
 };
 
