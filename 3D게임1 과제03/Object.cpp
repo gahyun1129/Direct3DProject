@@ -42,9 +42,7 @@ CMaterialColors::CMaterialColors(MATERIALLOADINFO *pMaterialInfo)
 //
 CShader	*CMaterial::m_pIlluminatedShader = NULL;
 
-CMaterial::CMaterial()
-{
-}
+
 
 CMaterial::~CMaterial()
 {
@@ -82,7 +80,7 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 CGameObject::CGameObject()
 {
 	m_xmf4x4Transform = Matrix4x4::Identity();
@@ -222,27 +220,11 @@ void CGameObject::UpdateBoundingBox()
 	m_xmOOBB.Center = Pos;
 }
 
-void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
-{
-}
-
-void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
-{
-}
-
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
-}
-
-void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial *pMaterial)
-{
-}
-
-void CGameObject::ReleaseShaderVariables()
-{
 }
 
 void CGameObject::ReleaseUploadBuffers()
@@ -356,7 +338,7 @@ void CGameObject::Rotate(XMFLOAT4 *pxmf4Quaternion)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 int ReadIntegerFromFile(FILE* pInFile)
 {
 	int nValue = 0;
@@ -700,7 +682,7 @@ void CGameObject::SetExtents(BoundingOrientedBox& xmOOBB1, BoundingOrientedBox& 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 
 CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, LPCTSTR pFileName, int
@@ -757,15 +739,11 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
 CRotatingObject::CRotatingObject()
 {
 	m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_fRotationSpeed = 15.0f;
-}
-
-CRotatingObject::~CRotatingObject()
-{
 }
 
 void CRotatingObject::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
@@ -781,16 +759,11 @@ void CRotatingObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 CRevolvingObject::CRevolvingObject()
 {
 	m_xmf3RevolutionAxis = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	m_fRevolutionSpeed = 0.0f;
-}
-
-CRevolvingObject::~CRevolvingObject()
-{
 }
 
 void CRevolvingObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
@@ -800,8 +773,8 @@ void CRevolvingObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 
 	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 XMFLOAT3 CMissileObject::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
 CDiffusedMesh* CMissileObject::m_pExplosionMesh = NULL;
@@ -812,14 +785,6 @@ CMissileObject::CMissileObject()
 	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(2.0f, 2.0f, 6.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 
 	m_fMoveSpeed = 300.0f;
-}
-
-CMissileObject::~CMissileObject()
-{
-}
-
-void CMissileObject::OnInitialize()
-{
 }
 
 void CMissileObject::PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -931,23 +896,10 @@ void CMissileObject::ExploseMissile()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 std::vector<XMFLOAT3> CHellicopterObject::m_vxmf3MovePosition;
 XMFLOAT3 CHellicopterObject::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
 CDiffusedMesh* CHellicopterObject::m_pExplosionMesh = NULL;
-
-CHellicopterObject::CHellicopterObject()
-{
-}
-
-CHellicopterObject::~CHellicopterObject()
-{
-}
-
-void CHellicopterObject::OnInitialize()
-{
-}
 
 void CHellicopterObject::PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -1039,14 +991,6 @@ void CHellicopterObject::PrepareMovePosition()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CApacheObject::CApacheObject()
-{
-}
-
-CApacheObject::~CApacheObject()
-{
-}
 
 void CApacheObject::OnInitialize()
 {
@@ -1071,14 +1015,6 @@ void CApacheObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CSuperCobraObject::CSuperCobraObject()
-{
-}
-
-CSuperCobraObject::~CSuperCobraObject()
-{
-}
 
 void CSuperCobraObject::OnInitialize()
 {
@@ -1087,14 +1023,6 @@ void CSuperCobraObject::OnInitialize()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CGunshipObject::CGunshipObject()
-{
-}
-
-CGunshipObject::~CGunshipObject()
-{
-}
 
 void CGunshipObject::OnInitialize()
 {
@@ -1103,17 +1031,179 @@ void CGunshipObject::OnInitialize()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CMi24Object::CMi24Object()
-{
-}
-
-CMi24Object::~CMi24Object()
-{
-}
 
 void CMi24Object::OnInitialize()
 {
 	m_pMainRotorFrame = FindFrame("Top_Rotor");
 	m_pTailRotorFrame = FindFrame("Tail_Rotor");
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::vector<XMFLOAT3> CTankObject::m_vxmf3MovePosition;
+XMFLOAT3 CTankObject::m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+CDiffusedMesh* CTankObject::m_pExplosionMesh = NULL;
+
+void CTankObject::PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	for (int i = 0; i < EXPLOSION_DEBRISES; i++) XMStoreFloat3(&m_pxmf3SphereVectors[i], ::RandomUnitVectorOnSphere());
+
+	m_pExplosionMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 4.0f, 4.0f);
+}
+
+void CTankObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, XMFLOAT3 xmfMovePosition)
+{
+	if (m_bBlowingUp)
+	{
+		m_fElapsedTimes += fTimeElapsed;
+		if (m_fElapsedTimes <= m_fDuration)
+		{
+			XMFLOAT3 xmf3Position = GetPosition();
+			for (int i = 0; i < EXPLOSION_DEBRISES; i++)
+			{
+				m_pxmf4x4Transforms[i] = Matrix4x4::Identity();
+				m_pxmf4x4Transforms[i]._41 = xmf3Position.x + m_pxmf3SphereVectors[i].x * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i]._42 = xmf3Position.y + m_pxmf3SphereVectors[i].y * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i]._43 = xmf3Position.z + m_pxmf3SphereVectors[i].z * m_fExplosionSpeed * m_fElapsedTimes;
+				m_pxmf4x4Transforms[i] = Matrix4x4::Multiply(Matrix4x4::RotationAxis(m_pxmf3SphereVectors[i], m_fExplosionRotation * m_fElapsedTimes), m_pxmf4x4Transforms[i]);
+			}
+		}
+		else
+		{
+
+		}
+	}
+	else
+	{
+		XMFLOAT3 xmf3MovePosition = Vector3::Subtract(xmfMovePosition, GetPosition());
+		xmf3MovePosition = Vector3::Normalize(xmf3MovePosition);
+		XMFLOAT3 xmf3Look = GetLook();
+
+		XMFLOAT3 xmf3CrossProduct = Vector3::CrossProduct(xmf3Look, xmf3MovePosition);
+		if (xmf3Look.z > 0) {
+			xmf3CrossProduct.x *= 1.0f;
+		}
+		else {
+			xmf3CrossProduct.x *= -1.0f;
+		}
+
+		Rotate(xmf3CrossProduct.x, xmf3CrossProduct.y, 0.0f);
+		MoveForward(100.0f * fTimeElapsed);
+
+		CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+	}
+}
+
+void CTankObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	if (m_bBlowingUp && m_fElapsedTimes >= m_fDuration)
+	{
+	}
+	else if (m_bBlowingUp) {
+		for (int i = 0; i < EXPLOSION_DEBRISES; i++)
+		{
+			CGameObject::Render(pd3dCommandList, &m_pxmf4x4Transforms[i], m_pExplosionMesh);
+		}
+	}
+	else
+	{
+		CGameObject::Render(pd3dCommandList, pCamera);
+	}
+}
+
+void CTankObject::PrepareMovePosition()
+{
+	m_vxmf3MovePosition.push_back(XMFLOAT3(6344.0f, 0.0f, 3981.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(6183.0f, 0.0f, 5448.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(4680.0f, 0.0f, 7249.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(2946.0f, 0.0f, 7208.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(1821.0f, 0.0f, 4722.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(2680.0f, 0.0f, 2855.0f));
+	m_vxmf3MovePosition.push_back(XMFLOAT3(2600.0f, 0.0f, 0.0f));
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+void CM26Object::OnInitialize()
+{
+	m_pTurretFrame = FindFrame("TURRET");
+	m_pCannonFrame = FindFrame("cannon");
+	m_pGunFrame = FindFrame("gun");
+}
+
+void CM26Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent) {
+	if (m_pTurretFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	}
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+void CHummerObject::OnInitialize()
+{
+	m_pwheel_LFFrame = FindFrame("wheel_LF");
+	m_pwheel_LRFrame = FindFrame("wheel_LR");
+	m_pwheel_RRFrame = FindFrame("wheel_RR");
+	m_pwheel_RFFrame = FindFrame("wheel_RF");
+}
+void CHummerObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent) {
+	if (m_pwheel_LFFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pwheel_LFFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pwheel_LFFrame->m_xmf4x4Transform);
+	}
+	if (m_pwheel_LRFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pwheel_LRFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pwheel_LRFrame->m_xmf4x4Transform);
+	}
+	if (m_pwheel_RRFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pwheel_RRFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pwheel_RRFrame->m_xmf4x4Transform);
+	}
+	if (m_pwheel_RFFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationX(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pwheel_RFFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pwheel_RFFrame->m_xmf4x4Transform);
+	}
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+}
+////////////////////////////////////////////////////////////////////////////////////
+
+void CMK2Object::OnInitialize()
+{
+	m_pTurretFrame = FindFrame("SF_MK3-Turret");
+}
+
+void CMK2Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
+{
+	if (m_pTurretFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	}
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+void CMK3Object::OnInitialize()
+{
+	m_pTurretFrame = FindFrame("SF_MK2-Turret");
+}
+
+void CMK3Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
+{
+	if (m_pTurretFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 2.0f) * fTimeElapsed);
+		m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	}
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+}
+
+////////////////////////////////////////////////////////////////////////////////////

@@ -114,4 +114,32 @@ public:
 	virtual void ShotMissile();
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class CTankPlayer : public CPlayer
+{
+public:
+	CTankPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~CTankPlayer();
+
+	CGameObject* m_pTurretFrame = nullptr;
+	CGameObject* m_pCannonFrame = nullptr;
+	CGameObject* m_pGunFrame = nullptr;
+
+	XMFLOAT3							m_xmfPositionCache;
+	void								ResetPosition();
+
+	CMissileObject* m_pMissileObject = nullptr;
+
+private:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
+
+public:
+	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+	virtual void OnPrepareRender();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
+	virtual void ShotMissile();
+};

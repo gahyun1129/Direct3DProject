@@ -52,7 +52,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChain();
 	CreateDepthStencilView();
 
-	BuildObjects();
+	BuildObjects(0);
 
 	return(true);
 }
@@ -346,7 +346,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case 'R':
 			ReleaseObjects();
-			BuildObjects();
+			BuildObjects(0);
 			break;
 		case VK_NUMPAD1:
 			XMFLOAT3 offset = m_pCamera->GetOffset();
@@ -358,6 +358,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_NUMPAD4:
 			setRotate = true;
+			break;
+		case '1':
+			curScene = 1;
+			ReleaseObjects();
+			BuildObjects(curScene);
+			break;
+		case '0':
+			curScene = 0;
+			ReleaseObjects();
+			BuildObjects(curScene);
 			break;
 		default:
 			break;
@@ -428,19 +438,42 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
-void CGameFramework::BuildObjects()
+void CGameFramework::BuildObjects(int sceneNum)
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	switch (sceneNum) {
+	case 0: {
+		// Çï¸®ÄßÅÍ ¾À Build
+		m_pScene = new CHellicopterScene();
 
-	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	pAirplanePlayer->SetBoundingBox(pAirplanePlayer->m_xmOOBB, pAirplanePlayer);
-	pAirplanePlayer->SetPosition(XMFLOAT3(3830.0f, 1000.0f, 3830.0f));
-	pAirplanePlayer->SetScale(0.1f, 0.1f, 0.1f);
-	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
-	m_pCamera = m_pPlayer->GetCamera();
+		if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		pAirplanePlayer->SetBoundingBox(pAirplanePlayer->m_xmOOBB, pAirplanePlayer);
+		pAirplanePlayer->SetPosition(XMFLOAT3(3830.0f, 1000.0f, 3830.0f));
+		pAirplanePlayer->SetScale(0.1f, 0.1f, 0.1f);
+		m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+		m_pCamera = m_pPlayer->GetCamera();
+
+		break;
+	}
+	case 1: {
+		// ÅÊÅ© ¾À Build
+		m_pScene = new CTankScene();
+
+		if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+
+		CTankPlayer* pTankPlayer = new CTankPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		pTankPlayer->SetBoundingBox(pTankPlayer->m_xmOOBB, pTankPlayer);
+		pTankPlayer->SetPosition(XMFLOAT3(3830.0f, 1000.0f, 3830.0f));
+		pTankPlayer->SetScale(0.1f, 0.1f, 0.1f);
+		m_pScene->m_pPlayer = m_pPlayer = pTankPlayer;
+		m_pCamera = m_pPlayer->GetCamera();
+		break;
+	}
+	}
+	
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -492,14 +525,15 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				if (curScene == 0) {
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				}
+				else {
+					m_pPlayer->Rotate(0, cxDelta, 0.0f);
+				}
 			}
 			if (dwDirection) m_pPlayer->Move(dwDirection, 150.0f, true);
 		}
-		//if (setRotate) {
-		//	setRotate = false;
-		//	m_pPlayer->Rotate(0.0f, 0.0f, 0.0f);
-		//}
 	}
 	
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
@@ -619,7 +653,7 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pPlayer->isPlayerHPZero()) {
 		ReleaseObjects();
-		BuildObjects();
+		BuildObjects(0);
 	}
 }
 

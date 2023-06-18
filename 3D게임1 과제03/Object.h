@@ -79,7 +79,7 @@ public:
 class CMaterial
 {
 public:
-	CMaterial();
+	CMaterial() {}
 	virtual ~CMaterial();
 
 private:
@@ -105,6 +105,8 @@ public:
 public:
 	static void PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CGameObject
 {
@@ -159,12 +161,12 @@ public:
 
 	void UpdateBoundingBox();
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void ReleaseShaderVariables();
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList) {}
+	virtual void ReleaseShaderVariables() { };
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
-	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial *pMaterial);
+	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, CMaterial *pMaterial) { }
 
 	virtual void ReleaseUploadBuffers();
 
@@ -200,6 +202,8 @@ public:
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CHeightMapTerrain : public CGameObject
 {
@@ -245,11 +249,13 @@ public:
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class CRotatingObject : public CGameObject
 {
 public:
 	CRotatingObject();
-    virtual ~CRotatingObject();
+	virtual ~CRotatingObject() {};
 
 private:
 	XMFLOAT3					m_xmf3RotationAxis;
@@ -263,11 +269,13 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class CRevolvingObject : public CGameObject
 {
 public:
 	CRevolvingObject();
-	virtual ~CRevolvingObject();
+	virtual ~CRevolvingObject() {};
 
 private:
 	XMFLOAT3					m_xmf3RevolutionAxis;
@@ -280,11 +288,13 @@ public:
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class CMissileObject : public CGameObject
 {
 public:
 	CMissileObject();
-	virtual ~CMissileObject();
+	virtual ~CMissileObject() {};
 
 	XMFLOAT4X4					m_pxmf4x4Transforms[MAX_LAUNCH_MISSILE];
 	XMFLOAT4X4					m_pxmf4x4MissileTransforms[MAX_LAUNCH_MISSILE][EXPLOSION_DEBRISES];
@@ -299,7 +309,7 @@ public:
 	bool						m_bIsShooted = false;
 
 public:
-	virtual void OnInitialize();
+	virtual void OnInitialize() {}
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, int iMissileNumber);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int iMissileNumber);
 
@@ -314,11 +324,13 @@ public:
 	void ExploseMissile();
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class CHellicopterObject : public CGameObject
 {
 public:
-	CHellicopterObject();
-	virtual ~CHellicopterObject();
+	CHellicopterObject() {}
+	virtual ~CHellicopterObject() {}
 
 protected:
 	CGameObject* m_pMainRotorFrame = NULL;
@@ -337,7 +349,7 @@ public:
 	float						m_fExplosionRotation = 360.0f;
 
 
-	virtual void OnInitialize();
+	virtual void OnInitialize() {}
 	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, XMFLOAT3 xmfMovePosition);
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
@@ -351,8 +363,8 @@ public:
 class CApacheObject : public CHellicopterObject
 {
 public:
-	CApacheObject();
-	virtual ~CApacheObject();
+	CApacheObject() {}
+	virtual ~CApacheObject() {}
 
 public:
 	virtual void OnInitialize();
@@ -362,8 +374,8 @@ public:
 class CGunshipObject : public CHellicopterObject
 {
 public:
-	CGunshipObject();
-	virtual ~CGunshipObject();
+	CGunshipObject() {}
+	virtual ~CGunshipObject() {}
 
 public:
 	virtual void OnInitialize();
@@ -372,8 +384,8 @@ public:
 class CSuperCobraObject : public CHellicopterObject
 {
 public:
-	CSuperCobraObject();
-	virtual ~CSuperCobraObject();
+	CSuperCobraObject() {}
+	virtual ~CSuperCobraObject() {}
 
 public:
 	virtual void OnInitialize();
@@ -382,9 +394,99 @@ public:
 class CMi24Object : public CHellicopterObject
 {
 public:
-	CMi24Object();
-	virtual ~CMi24Object();
+	CMi24Object() {}
+	virtual ~CMi24Object() {}
 
 public:
 	virtual void OnInitialize();
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CTankObject : public CGameObject
+{
+public:
+	CTankObject(){}
+	virtual ~CTankObject(){}
+
+
+
+public:
+	static std::vector<XMFLOAT3>		m_vxmf3MovePosition;
+	static void PrepareMovePosition();
+
+
+	XMFLOAT4X4							m_pxmf4x4Transforms[EXPLOSION_DEBRISES];
+
+	float								m_fElapsedTimes = 0.0f;
+	float								m_fDuration = 3.0f;
+	float								m_fExplosionSpeed = 100.0f;
+	float								m_fExplosionRotation = 360.0f;
+
+
+	virtual void OnInitialize(){}
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent, XMFLOAT3 xmfMovePosition);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+
+	static CDiffusedMesh*				m_pExplosionMesh;
+	static XMFLOAT3						m_pxmf3SphereVectors[EXPLOSION_DEBRISES];
+
+	static void PrepareExplosion(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+};
+
+class CM26Object : public CTankObject
+{
+public:
+	CM26Object(){}
+	virtual ~CM26Object(){}
+
+protected:
+	CGameObject* m_pTurretFrame = nullptr;
+	CGameObject* m_pCannonFrame = nullptr;
+	CGameObject* m_pGunFrame = nullptr;
+
+public:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
+};
+
+class CHummerObject : public CTankObject
+{
+public:
+	CHummerObject(){}
+	virtual ~CHummerObject(){}
+protected:
+	CGameObject* m_pwheel_LFFrame = nullptr;
+	CGameObject* m_pwheel_LRFrame = nullptr;
+	CGameObject* m_pwheel_RFFrame = nullptr;
+	CGameObject* m_pwheel_RRFrame = nullptr;
+
+public:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
+};
+
+class CMK2Object : public CTankObject
+{
+public:
+	CMK2Object(){}
+	virtual ~CMK2Object(){}
+protected:
+	CGameObject* m_pTurretFrame = nullptr;
+public:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
+};
+
+class CMK3Object : public CTankObject
+{
+public:
+	CMK3Object(){}
+	virtual ~CMK3Object(){}
+protected:
+	CGameObject* m_pTurretFrame = nullptr;
+public:
+	virtual void OnInitialize();
+	virtual void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent = NULL);
 };

@@ -10,6 +10,8 @@
 class CGameFramework
 {
 public:
+	int							curScene = 0;
+
 	CGameFramework();
 	~CGameFramework();
 
@@ -27,7 +29,7 @@ public:
 
 	void ChangeSwapChainState();
 
-    void BuildObjects();
+    void BuildObjects(int sceneNum);
     void ReleaseObjects();
 
     void ProcessInput();
@@ -87,6 +89,7 @@ private:
 	POINT						m_ptOldCursorPos;
 	
 	bool						setRotate = false;
+	
 	_TCHAR						m_pszFrameRate[70];
 };
 

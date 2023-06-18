@@ -386,3 +386,138 @@ void CAirplanePlayer::ShotMissile()
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CTankPlayer
+
+CTankPlayer::CTankPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	m_pCamera = ChangeCamera(/*SPACESHIP_CAMERA*/THIRD_PERSON_CAMERA, 0.0f);
+
+	CGameObject* pGameObject = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/M26.bin");
+
+	pGameObject->Rotate(0.0f, 0.0f, 0.0f);
+	pGameObject->SetScale(10.0f, 10.0f, 10.0f);
+	CGameObject::SetBoundingBox(pGameObject->m_xmOOBB, pGameObject);
+
+	SetChild(pGameObject, true);
+
+	m_pMissileObject = new CMissileObject[MAX_LAUNCH_MISSILE];
+
+	OnInitialize();
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+CTankPlayer::~CTankPlayer()
+{
+}
+
+void CTankPlayer::OnInitialize()
+{
+	m_pTurretFrame = FindFrame("TURRET");
+	m_pCannonFrame = FindFrame("cannon");
+	m_pGunFrame = FindFrame("gun");
+}
+
+void CTankPlayer::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
+{
+	if (m_pTurretFrame)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 0.5f) * fTimeElapsed);
+		m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	}
+
+	m_xmfPositionCache = GetPosition();
+
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (m_pMissileObject[i].m_bIsShooted) {
+			m_pMissileObject[i].Animate(fTimeElapsed, pxmf4x4Parent, i);
+		}
+	}
+	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
+	CPlayer::UpdateBoundingBox();
+}
+
+void CTankPlayer::ResetPosition()
+{
+	SetPosition(m_xmfPositionCache);
+	UpdateBoundingBox();
+}
+
+void CTankPlayer::OnPrepareRender()
+{
+	CPlayer::OnPrepareRender();
+}
+
+CCamera* CTankPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+{
+	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
+	switch (nNewCameraMode)
+	{
+	case FIRST_PERSON_CAMERA:
+		SetFriction(200.0f);
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetMaxVelocityXZ(25.5f);
+		SetMaxVelocityY(40.0f);
+		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	case SPACESHIP_CAMERA:
+		SetFriction(200.5f);
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetMaxVelocityXZ(40.0f);
+		SetMaxVelocityY(40.0f);
+		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	case THIRD_PERSON_CAMERA:
+		SetFriction(500.5f);
+		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+		SetMaxVelocityXZ(250.5f);
+		SetMaxVelocityY(200.0f);
+		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.25f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 55.0f, -200.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
+		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
+		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		break;
+	default:
+		break;
+	}
+
+	m_pCamera->SetPosition(Vector3::Add(m_xmf3Position, m_pCamera->GetOffset()));
+	Update(fTimeElapsed);
+
+	return(m_pCamera);
+}
+
+void CTankPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (m_pMissileObject[i].m_bIsShooted) {
+			m_pMissileObject[i].Render(pd3dCommandList, pCamera, i);
+		}
+	}
+	CPlayer::Render(pd3dCommandList, pCamera);
+}
+
+void CTankPlayer::ShotMissile()
+{
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		if (!m_pMissileObject[i].m_bIsShooted) {
+			m_pMissileObject[i].ShootMissile(m_xmf4x4World, i);
+			break;
+		}
+	}
+}

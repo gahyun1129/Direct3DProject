@@ -40,25 +40,26 @@ struct LIGHTS
 class CScene
 {
 public:
-    CScene();
-    ~CScene();
+	CScene() {};
+	~CScene() {};
 
-	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; };
+	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; };
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) {};
+	void ReleaseObjects();
+
+	void BuildLightsAndMaterials();
+
+	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
-	void BuildDefaultLightsAndMaterials();
-	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	void ReleaseObjects();
-
-	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
-
-	bool ProcessInput(UCHAR *pKeysBuffer);
-    void AnimateObjects(float fTimeElapsed);
+	bool ProcessInput(UCHAR *pKeysBuffer) { return false; };
+	virtual void AnimateObjects(float fTimeElapsed) {};
     void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
 
 	void ReleaseUploadBuffers();
@@ -66,18 +67,18 @@ public:
 	CHeightMapTerrain* GetTerrain() { return(m_pTerrain); }
 
 	CPlayer						*m_pPlayer = NULL;
-
 	CHeightMapTerrain			*m_pTerrain = NULL;
 
 
-	void CreateEnemy();
+	virtual void CreateEnemy() {};
 
-	void CheckPlayerByObjectCollisions();
-	void CheckMissileByObjectCollisions();
-	void CheckObjectArriveEndline();
-	void CheckObjectByGroundCollisions();
+	virtual void CheckPlayerByObjectCollisions() {};
+	virtual void CheckMissileByObjectCollisions() {};
+	virtual void CheckObjectArriveEndline() {};
+	virtual void CheckObjectByGroundCollisions() {};
+	virtual void CheckPlayetByGroundCollisions() {};
+
 	void CheckPlayerArriveEndline();
-	void CheckPlayerByGroundCollisions();
 
 public:
 	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
@@ -98,10 +99,61 @@ public:
 	float						m_fSpawnElapsed = 0.0f;
 	bool						m_bIsChangeSpawnField = false;
 
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+class CHellicopterScene : public CScene {
+public:
+	CHellicopterScene() {};
+	~CHellicopterScene() {};
+
+	virtual void CreateEnemy();
+
+	virtual void CheckPlayerByObjectCollisions();
+	virtual void CheckMissileByObjectCollisions();
+	virtual void CheckObjectArriveEndline();
+	virtual void CheckObjectByGroundCollisions();
+	virtual void CheckPlayertByGroundCollisions();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void AnimateObjects(float fTimeElapsed);
+
+public:
+
 	CGameObject* pGunshipModel;
 	CGunshipObject* pGunShipObject;
 	CGameObject* pSuperCobraModel;
 	CSuperCobraObject* pSuperCobraObject;
 	CGameObject* pMi24Model;
 	CMi24Object* pMi24Object;
+};
+
+class CTankScene : public CScene {
+public:
+	CTankScene() {};
+	~CTankScene() {};
+
+	virtual void CreateEnemy();
+
+	virtual void CheckPlayerByObjectCollisions();
+	virtual void CheckMissileByObjectCollisions();
+	virtual void CheckObjectArriveEndline();
+	virtual void CheckObjectByGroundCollisions();
+	virtual void CheckPlayerByGroundCollisions();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void AnimateObjects(float fTimeElapsed);
+
+public:
+
+	CGameObject* pHummerModel;
+	CHummerObject* pHummerObject;
+	CGameObject* pMK2Model;
+	CMK2Object* pMK2Object;
+	CGameObject* pMK3Model;
+	CMK3Object* pMK3Object;
 };
