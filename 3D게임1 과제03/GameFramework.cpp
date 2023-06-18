@@ -52,7 +52,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChain();
 	CreateDepthStencilView();
 
-	BuildObjects(1);
+	BuildObjects(curScene);
 
 	return(true);
 }
@@ -331,11 +331,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_RETURN:
 			break;
-		case VK_F1:
-		case VK_F2:
-		case VK_F3:
-			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
-			break;
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
@@ -346,7 +341,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case 'R':
 			ReleaseObjects();
-			BuildObjects(0);
+			BuildObjects(curScene);
 			break;
 		case VK_NUMPAD1:
 			XMFLOAT3 offset = m_pCamera->GetOffset();
@@ -356,16 +351,13 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			offset = m_pCamera->GetOffset();
 			m_pCamera->SetOffset(XMFLOAT3(offset.x, offset.y - 5.0f, offset.z + 10.0f));
 			break;
-		case VK_NUMPAD4:
-			setRotate = true;
-			break;
-		case '1':
-			curScene = 1;
+		case '2':
+			curScene = 2;
 			ReleaseObjects();
 			BuildObjects(curScene);
 			break;
-		case '0':
-			curScene = 0;
+		case '1':
+			curScene = 1;
 			ReleaseObjects();
 			BuildObjects(curScene);
 			break;
@@ -443,7 +435,7 @@ void CGameFramework::BuildObjects(int sceneNum)
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	switch (sceneNum) {
-	case 0: {
+	case 1: {
 		// Çï¸®ÄßÅÍ ¾À Build
 		m_pScene = new CHellicopterScene();
 
@@ -458,7 +450,7 @@ void CGameFramework::BuildObjects(int sceneNum)
 
 		break;
 	}
-	case 1: {
+	case 2: {
 		// ÅÊÅ© ¾À Build
 		m_pScene = new CTankScene();
 
@@ -525,11 +517,16 @@ void CGameFramework::ProcessInput()
 		{
 			if (cxDelta || cyDelta)
 			{
-				if (curScene == 0) {
+				if (curScene == 1) {
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 				}
 				else {
 					m_pPlayer->Rotate(0, cxDelta, 0.0f);
+					if (((CTankPlayer*)m_pPlayer)->m_pCannonFrame)
+					{
+						XMMATRIX xmmtxRotate = XMMatrixRotationX(-cyDelta/100.0f);
+						((CTankPlayer*)m_pPlayer)->m_pCannonFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, ((CTankPlayer*)m_pPlayer)->m_pCannonFrame->m_xmf4x4Transform);
+					}
 				}
 			}
 			if (dwDirection) m_pPlayer->Move(dwDirection, 150.0f, true);
@@ -653,7 +650,7 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pPlayer->isPlayerHPZero()) {
 		ReleaseObjects();
-		BuildObjects(0);
+		BuildObjects(curScene);
 	}
 }
 

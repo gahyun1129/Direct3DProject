@@ -1234,7 +1234,7 @@ void CBulletObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 	m_fElapsedTimes += fTimeElapsed;
 	if (m_fElapsedTimes <= m_fDuration) {
 		m_xmf4x4World._41 -= xmf3Look.x * m_fMoveSpeed * fTimeElapsed;
-		m_xmf4x4World._42 += xmf3Look.y * m_fMoveSpeed * fTimeElapsed / 2;
+		m_xmf4x4World._42 -= xmf3Look.y * m_fMoveSpeed * fTimeElapsed / 2;
 		m_xmf4x4World._43 -= xmf3Look.z * m_fMoveSpeed * fTimeElapsed;
 
 		XMFLOAT3 Pos = GetPosition();

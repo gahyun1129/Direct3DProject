@@ -275,6 +275,7 @@ bool CPlayer::isPlayerHPZero()
 	return false;
 }
 
+
 void CAirplanePlayer::OnInitialize()
 {
 	m_pMainRotorFrame = FindFrame("rotor");
@@ -442,11 +443,6 @@ void CTankPlayer::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 
 	m_xmfPositionCache = GetPosition();
 
-	//for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-	//	if (m_pMissileObject[i].m_bIsShooted) {
-	//		m_pMissileObject[i].Animate(fTimeElapsed, pxmf4x4Parent);
-	//	}
-	//}
 	for (const auto& iter : m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted; })) {
 		iter->Animate(fTimeElapsed, pxmf4x4Parent);
 	}
@@ -519,11 +515,6 @@ CCamera* CTankPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void CTankPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	//for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-	//	if (m_pMissileObject[i].m_bIsShooted) {
-	//		m_pMissileObject[i].Render(pd3dCommandList, pCamera, i);
-	//	}
-	//}
 	for (const auto& iter : m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted; })) {
 		iter->Render(pd3dCommandList, pCamera);
 	}

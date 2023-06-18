@@ -84,6 +84,7 @@ public:
 	bool isPlayerHPZero();
 	virtual void ShotMissile() {};
 
+
 	int									HP = 100;
 };
 
