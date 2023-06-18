@@ -130,6 +130,7 @@ public:
 	void								ResetPosition();
 
 	CMissileObject* m_pMissileObject = nullptr;
+	std::vector<CBulletObject*> m_pBulletObjects;
 
 private:
 	virtual void OnInitialize();

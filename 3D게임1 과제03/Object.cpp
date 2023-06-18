@@ -1206,3 +1206,53 @@ void CMK3Object::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+CDiffusedMesh* CBulletObject::m_pBulletMesh = NULL;
+
+CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4 xmf4x4ParentWorldMatrix)
+{
+	m_xmf4x4World = xmf4x4ParentWorldMatrix;
+	m_pBulletMesh = new CCubeMeshDiffused(pd3dDevice, pd3dCommandList, 4.0f, 4.0f, 4.0f);
+	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(2.0f, 2.0f, 2.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void CBulletObject::shootBullet(XMFLOAT4X4 xmf4x4ParentWorld)
+{
+	m_bIsShooted = true;
+	m_xmf4x4World = xmf4x4ParentWorld;
+	XMFLOAT3 Pos = GetPosition();
+	Pos.x = m_xmf4x4World._41;
+	Pos.y = m_xmf4x4World._42;
+	Pos.z = m_xmf4x4World._43;
+	SetPosition(Pos);
+	m_xmOOBB.Center = Pos;
+
+	xmf3Look = Vector3::Normalize(XMFLOAT3(xmf4x4ParentWorld._31, xmf4x4ParentWorld._32, xmf4x4ParentWorld._33));
+	
+}
+void CBulletObject::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
+{
+	m_fElapsedTimes += fTimeElapsed;
+	if (m_fElapsedTimes <= m_fDuration) {
+		m_xmf4x4World._41 -= xmf3Look.x * m_fMoveSpeed * fTimeElapsed;
+		m_xmf4x4World._42 += xmf3Look.y * m_fMoveSpeed * fTimeElapsed / 2;
+		m_xmf4x4World._43 -= xmf3Look.z * m_fMoveSpeed * fTimeElapsed;
+
+		XMFLOAT3 Pos = GetPosition();
+		Pos.x = m_xmf4x4World._41;
+		Pos.y = m_xmf4x4World._42;
+		Pos.z = m_xmf4x4World._43;
+		SetPosition(Pos);
+		m_xmOOBB.Center = Pos;
+	}
+	else {
+		m_bIsShooted = false;
+		m_fElapsedTimes = 0.0f;
+		return;
+	}
+	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
+}
+
+void CBulletObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	CGameObject::Render(pd3dCommandList, &m_xmf4x4World, m_pBulletMesh);
+}

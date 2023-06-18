@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Shader.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
@@ -402,11 +403,17 @@ CTankPlayer::CTankPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 
 	SetChild(pGameObject, true);
 
+	m_pBulletObjects.reserve(MAX_LAUNCH_MISSILE);
+
 	m_pMissileObject = new CMissileObject[MAX_LAUNCH_MISSILE];
 
 	OnInitialize();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+		m_pBulletObjects.push_back(new CBulletObject(pd3dDevice, pd3dCommandList, m_pCannonFrame->m_xmf4x4World));
+	}
 }
 
 CTankPlayer::~CTankPlayer()
@@ -417,7 +424,7 @@ void CTankPlayer::OnInitialize()
 {
 	m_pTurretFrame = FindFrame("TURRET");
 	m_pCannonFrame = FindFrame("cannon");
-	m_pGunFrame = FindFrame("gun");
+	m_pGunFrame = FindFrame("effect1");
 	if (m_pTurretFrame)
 	{
 	XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(165.0f));
@@ -435,10 +442,13 @@ void CTankPlayer::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 
 	m_xmfPositionCache = GetPosition();
 
-	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-		if (m_pMissileObject[i].m_bIsShooted) {
-			m_pMissileObject[i].Animate(fTimeElapsed, pxmf4x4Parent, i);
-		}
+	//for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+	//	if (m_pMissileObject[i].m_bIsShooted) {
+	//		m_pMissileObject[i].Animate(fTimeElapsed, pxmf4x4Parent);
+	//	}
+	//}
+	for (const auto& iter : m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted; })) {
+		iter->Animate(fTimeElapsed, pxmf4x4Parent);
 	}
 	CPlayer::Animate(fTimeElapsed, pxmf4x4Parent);
 	CPlayer::UpdateBoundingBox();
@@ -509,20 +519,22 @@ CCamera* CTankPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void CTankPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-		if (m_pMissileObject[i].m_bIsShooted) {
-			m_pMissileObject[i].Render(pd3dCommandList, pCamera, i);
-		}
+	//for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
+	//	if (m_pMissileObject[i].m_bIsShooted) {
+	//		m_pMissileObject[i].Render(pd3dCommandList, pCamera, i);
+	//	}
+	//}
+	for (const auto& iter : m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted; })) {
+		iter->Render(pd3dCommandList, pCamera);
 	}
 	CPlayer::Render(pd3dCommandList, pCamera);
 }
 
 void CTankPlayer::ShotMissile()
 {
-	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-		if (!m_pMissileObject[i].m_bIsShooted) {
-			m_pMissileObject[i].ShootMissile(m_xmf4x4World, i);
-			break;
+	if (m_pBulletObjects.size() != 0) {
+		for (const auto& iter : m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted == false; }) | views::take(1)) {
+			iter->shootBullet(m_pGunFrame->m_xmf4x4World);
 		}
 	}
 }

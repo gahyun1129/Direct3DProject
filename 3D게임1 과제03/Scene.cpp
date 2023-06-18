@@ -450,7 +450,7 @@ void CTankScene::CreateEnemy()
 	int nSelectedObject = RD::GetRandomint(0, 2);
 	int nSelectedPos = RD::GetRandomint(0, 6);
 
-	XMFLOAT3 SpawnPosition = CHellicopterObject::m_vxmf3MovePosition[nSelectedPos];
+	XMFLOAT3 SpawnPosition = CTankObject::m_vxmf3MovePosition[nSelectedPos];
 
 	switch (nSelectedObject) {
 	case 0:
@@ -501,15 +501,12 @@ void CTankScene::CheckMissileByObjectCollisions()
 {
 	CTankPlayer* Player = (CTankPlayer*)m_pPlayer;
 
-	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
-		if (Player->m_pMissileObject[i].m_bIsShooted && !Player->m_pMissileObject[i].m_bBlowingUp) {
-			for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
-				CTankObject* Tank = (CTankObject*)*iter;
-				if (Tank->m_xmOOBB.Intersects(Player->m_pMissileObject[i].m_xmOOBB)) {
-					Player->m_pMissileObject[i].ExploseMissile();
-					m_lpGameObjects.erase(iter);
-					break;
-				}
+	for (const auto& bullet : Player->m_pBulletObjects | views::filter([](const auto& a) {return a->m_bIsShooted; })) {
+		for (auto iter = m_lpGameObjects.begin(); iter != m_lpGameObjects.end(); ++iter) {
+			CTankObject* Tank = (CTankObject*)*iter;
+			if (Tank->m_xmOOBB.Intersects(bullet->m_xmOOBB)) {
+				m_lpGameObjects.erase(iter);
+				break;
 			}
 		}
 	}

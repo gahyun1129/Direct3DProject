@@ -25,6 +25,7 @@
 #include <vector>
 #include <list>
 #include <random>
+#include <ranges>
 
 using namespace std;
 

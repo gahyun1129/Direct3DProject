@@ -10,7 +10,7 @@
 class CGameFramework
 {
 public:
-	int							curScene = 0;
+	int							curScene = 1;
 
 	CGameFramework();
 	~CGameFramework();

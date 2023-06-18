@@ -324,6 +324,27 @@ public:
 	void ExploseMissile();
 };
 
+class CBulletObject : public CGameObject {
+public:
+	CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4 xmf4x4ParentWorldMatrix);
+	~CBulletObject() {}
+
+	void shootBullet(XMFLOAT4X4 xmf4x4ParentWorld);
+	void Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+
+	static CDiffusedMesh*	m_pBulletMesh;
+
+	bool					m_bIsShooted = false;
+
+	float					m_fElapsedTimes = 0.0f;
+	float					m_fDuration = 3.0f;
+	float					m_fMoveSpeed = 600.0f;
+
+	XMFLOAT3				xmf3Pos;
+	XMFLOAT3				xmf3Look;
+
+};
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CHellicopterObject : public CGameObject
