@@ -874,13 +874,12 @@ void CMissileObject::ShootMissile(XMFLOAT4X4 xmf4x4Transforms, int iMissileNumbe
 	m_bIsShooted = true;
 	m_bBlowingUp = false;
 	m_pxmf4x4Transforms[iMissileNumber] = xmf4x4Transforms;
-
+	m_pxmf4x4Transforms[iMissileNumber]._42 += 10.0f;
 	XMFLOAT3 Pos = GetPosition();
 	Pos.x = m_pxmf4x4Transforms[iMissileNumber]._41;
 	Pos.y = m_pxmf4x4Transforms[iMissileNumber]._42;
 	Pos.z = m_pxmf4x4Transforms[iMissileNumber]._43;
 	SetPosition(Pos);
-
 	m_xmOOBB.Center = Pos;
 
 	for (int i = 0; i < EXPLOSION_DEBRISES; i++)

@@ -418,15 +418,20 @@ void CTankPlayer::OnInitialize()
 	m_pTurretFrame = FindFrame("TURRET");
 	m_pCannonFrame = FindFrame("cannon");
 	m_pGunFrame = FindFrame("gun");
+	if (m_pTurretFrame)
+	{
+	XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(165.0f));
+	m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	}
 }
 
 void CTankPlayer::Animate(float fTimeElapsed, XMFLOAT4X4* pxmf4x4Parent)
 {
-	if (m_pTurretFrame)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 0.5f) * fTimeElapsed);
-		m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
-	}
+	//if (m_pTurretFrame)
+	//{
+	//	XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(360.0f * 0.5f) * fTimeElapsed);
+	//	m_pTurretFrame->m_xmf4x4Transform = Matrix4x4::Multiply(xmmtxRotate, m_pTurretFrame->m_xmf4x4Transform);
+	//}
 
 	m_xmfPositionCache = GetPosition();
 
