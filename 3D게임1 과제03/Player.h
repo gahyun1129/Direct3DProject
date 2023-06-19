@@ -112,7 +112,7 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
-	virtual void ShotMissile();
+	virtual void ShootMissile();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

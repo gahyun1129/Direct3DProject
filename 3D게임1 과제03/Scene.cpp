@@ -39,9 +39,9 @@ void CScene::BuildLightsAndMaterials()
 
 	m_pLights[2].m_bEnable = true;
 	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
+	m_pLights[2].m_xmf4Ambient = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 	m_pLights[3].m_bEnable = true;
@@ -373,12 +373,25 @@ void CHellicopterScene::AnimateObjects(float fTimeElapsed)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
-
 	}
 
 	m_fSpawnElapsed += fTimeElapsed;
 	if (m_fSpawnElapsed >= m_fSpawnDelay) {
 		m_fSpawnElapsed -= m_fSpawnDelay;
+		if (lightDefault > 0.75f) {
+			lightScale = -0.05f;
+		}
+		else if (lightDefault < 0.3f) {
+			lightScale = 0.05f;
+		}
+		lightDefault += lightScale;
+		m_pLights[2].m_xmf4Diffuse = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+		m_pLights[2].m_xmf4Ambient = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+		sceneColor[0] += lightScale;
+		sceneColor[1] += lightScale;
+		sceneColor[2] += lightScale;
+		cout << "color: " << sceneColor[0] << endl;
+		cout << lightDefault << endl;
 		CreateEnemy();
 	}
 
@@ -574,6 +587,20 @@ void CTankScene::AnimateObjects(float fTimeElapsed)
 	m_fSpawnElapsed += fTimeElapsed;
 	if (m_fSpawnElapsed >= m_fSpawnDelay) {
 		m_fSpawnElapsed -= m_fSpawnDelay;
+		if (lightDefault > 0.75f) {
+			lightScale = -0.05f;
+		}
+		else if (lightDefault < 0.3f) {
+			lightScale = 0.05f;
+		}
+		lightDefault += lightScale;
+		m_pLights[2].m_xmf4Diffuse = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+		m_pLights[2].m_xmf4Ambient = XMFLOAT4(lightDefault, lightDefault, lightDefault, 1.0f);
+		sceneColor[0] += lightScale;
+		sceneColor[1] += lightScale;
+		sceneColor[2] += lightScale;
+		cout << "color: " << sceneColor[0] << endl;
+		cout << lightDefault << endl;
 		CreateEnemy();
 	}
 

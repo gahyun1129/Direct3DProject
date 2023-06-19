@@ -379,7 +379,7 @@ void CAirplanePlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 	CPlayer::Render(pd3dCommandList, pCamera);
 }
 
-void CAirplanePlayer::ShotMissile()
+void CAirplanePlayer::ShootMissile()
 {
 	for (int i = 0; i < MAX_LAUNCH_MISSILE; ++i) {
 		if (!m_pMissileObject[i].m_bIsShooted) {

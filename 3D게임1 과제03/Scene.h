@@ -79,6 +79,9 @@ public:
 	virtual void CheckPlayetByGroundCollisions() {};
 
 	void CheckPlayerArriveEndline();
+	float				lightScale = -0.05f;
+	float				lightDefault = 0.8f;
+	float				sceneColor[4] = { 0.6f, 0.725f, 0.8f, 1.0f };
 
 public:
 	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
